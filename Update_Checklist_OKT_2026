@@ -1,0 +1,79 @@
+FULL CHECKLIST
+
+
+# Grafana Upgrade: v12.0.1 → v13.2.4
+
+
+## I. Preparation
+
+1. **Check the current version**
+   grafana-server -v
+   
+2. **Identify the database type**
+   sudo grep -A 10 '^\[database\]' /etc/grafana/grafana.ini
+   
+   Determine whether Grafana uses SQLite, PostgreSQL, or MySQL.
+3. **Create a backup directory**
+   sudo mkdir -p /backup/grafana
+   
+3a. MAKE A VM SNAPSHOT
+   
+   
+4. **Stop Grafana**
+   sudo systemctl stop grafana-server
+   
+5. **Back up the database**For SQLite (default installation):
+   
+   sudo cp -a /var/lib/grafana/grafana.db /backup/grafana/
+   
+   For PostgreSQL or MySQL, use the appropriate database backup utility.
+6. **Back up configuration**
+   sudo cp -a /etc/grafana /backup/grafana/
+   
+7. **Review compatibility**
+   - Check Grafana 13 breaking changes.
+   - Verify plugin compatibility.
+   - Review the [Grafana 13 upgrade guide](<https://grafana.com/docs/grafana/latest/upgrade-guide/upgrade-v13.0/>).
+
+
+
+## II. Update
+
+8. **Download Grafana 13.2.4**For Ubuntu/Debian AMD64:
+   
+   cd /tmp
+   wget https://dl.grafana.com/grafana/release/13.2.4/grafana_13.2.4_38252365904_linux_amd64.deb
+   
+9. **Install the new version**
+   sudo dpkg -i grafana_13.2.4_38252365904_linux_amd64.deb
+   
+10. **Start Grafana**
+    sudo systemctl daemon-reload
+    sudo systemctl start grafana-server
+    
+
+
+
+## III. Post-update activities
+
+11. **Verify the installed version**
+    grafana-server -v
+    
+    Confirm that the version is `13.2.4`.
+12. **Check service status**
+    sudo systemctl status grafana-server
+    
+13. **Review logs for errors**
+    sudo journalctl -u grafana-server -n 100 --no-pager
+    
+14. **Perform functional checks**
+    - Log in to Grafana.
+    - Verify dashboards and data sources.
+    - Test alert rules and notifications.
+    - Check plugins and authentication.
+    - Confirm dashboards and folders are accessible.
+15. **Keep the backup**
+    - Retain the pre-upgrade database and configuration backups.
+    - Do not restore the old database unless rollback is necessary.
+
+**Important:** The installation commands above assume Ubuntu/Debian, AMD64, and a standard package-based installation. Confirm the database type and installation method before executing the procedure in production.
